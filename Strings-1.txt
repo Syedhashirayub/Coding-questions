@@ -1,0 +1,249 @@
+Q1. Given two strings s and t, *determine if they are isomorphic*.
+
+Two strings s and t are isomorphic if the characters in s can be replaced to get t.
+
+All occurrences of a character must be replaced with another character while preserving the order of characters. No two characters may map to the same character, but a character may map to itself.
+
+**Example 1:**
+
+**Input:** s = "egg", t = "add"
+
+**Output:** true
+Ans:- 
+def is_isomorphic(s, t):
+    if len(s) != len(t):
+        return False
+
+    s_to_t = {}
+    t_to_s = {}
+
+    for i in range(len(s)):
+        char_s = s[i]
+        char_t = t[i]
+
+        if char_s in s_to_t and s_to_t[char_s] != char_t:
+            return False
+        if char_t in t_to_s and t_to_s[char_t] != char_s:
+            return False
+
+        s_to_t[char_s] = char_t
+        t_to_s[char_t] = char_s
+
+    return True
+
+Q2. Given a string num which represents an integer, return true *if* num *is a **strobogrammatic number***.
+
+A **strobogrammatic number** is a number that looks the same when rotated 180 degrees (looked at upside down).
+
+**Example 1:**
+
+**Input:** num = "69"
+
+**Output:**
+
+true
+Ans:- 
+def is_strobogrammatic(num):
+    strobogrammatic_pairs = {
+        '0': '0',
+        '1': '1',
+        '6': '9',
+        '8': '8',
+        '9': '6'
+    }
+
+    left = 0
+    right = len(num) - 1
+
+    while left <= right:
+        if num[left] not in strobogrammatic_pairs or num[right] != strobogrammatic_pairs[num[left]]:
+            return False
+        left += 1
+        right -= 1
+
+    return True
+
+Q3. 
+Given two non-negative integers, num1 and num2 represented as string, return *the sum of* num1 *and* num2 *as a string*.
+
+You must solve the problem without using any built-in library for handling large integers (such as BigInteger). You must also not convert the inputs to integers directly.
+
+**Example 1:**
+
+**Input:** num1 = "11", num2 = "123"
+
+**Output:**
+
+"134"
+
+Ans:- 
+def addStrings(num1, num2):
+    result = ""
+    carry = 0
+    i = len(num1) - 1
+    j = len(num2) - 1
+
+    while i >= 0 or j >= 0:
+        x = int(num1[i]) if i >= 0 else 0
+        y = int(num2[j]) if j >= 0 else 0
+        sum = x + y + carry
+        result = str(sum % 10) + result
+        carry = sum // 10
+        i -= 1
+        j -= 1
+
+    if carry:
+        result = str(carry) + result
+
+    return result
+
+# Test the function
+num1 = "11"
+num2 = "123"
+print(addStrings(num1, num2))
+
+Q4. Given a string s, reverse the order of characters in each word within a sentence while still preserving whitespace and initial word order.
+
+**Example 1:**
+
+**Input:** s = "Let's take LeetCode contest"
+
+**Output:** "s'teL ekat edoCteeL tsetnoc"
+Ans:- 
+def reverseWords(s):
+    # Split the string into a list of words
+    words = s.split()
+    
+    # Reverse the characters in each word
+    reversed_words = [word[::-1] for word in words]
+    
+    # Join the reversed words back into a string
+    reversed_sentence = ' '.join(reversed_words)
+    
+    return reversed_sentence
+
+# Test the function
+s = "Let's take LeetCode contest"
+print(reverseWords(s))
+
+Q5. Given a string s and an integer k, reverse the first k characters for every 2k characters counting from the start of the string.
+
+If there are fewer than k characters left, reverse all of them. If there are less than 2k but greater than or equal to k characters, then reverse the first k characters and leave the other as original.
+
+**Example 1:**
+
+**Input:** s = "abcdefg", k = 2
+
+**Output:**
+
+"bacdfeg"
+
+def reverseStr(s, k):
+    # Convert the string to a list of characters
+    chars = list(s)
+    
+    n = len(chars)
+    i = 0
+    
+    while i < n:
+        # Reverse the first k characters
+        chars[i:i+k] = reversed(chars[i:i+k])
+        
+        # Move the pointer to the next 2k characters
+        i += 2 * k
+    
+    # Convert the list of characters back to a string
+    reversed_s = ''.join(chars)
+    
+    return reversed_s
+
+# Test the function
+s = "abcdefg"
+k = 2
+print(reverseStr(s, k))
+
+Q6. Given two strings s and goal, return true *if and only if* s *can become* goal *after some number of **shifts** on* s.
+
+A **shift** on s consists of moving the leftmost character of s to the rightmost position.
+
+- For example, if s = "abcde", then it will be "bcdea" after one shift.
+
+**Example 1:**
+
+**Input:** s = "abcde", goal = "cdeab"
+
+**Output:**
+
+true
+AnsweR:- 
+def rotateString(s, goal):
+    # Check if goal is a substring of s + s
+    return len(s) == len(goal) and goal in (s + s)
+
+# Test the function
+s = "abcde"
+goal = "cdeab"
+print(rotateString(s, goal))
+
+Q7. Given two strings s and t, return true *if they are equal when both are typed into empty text editors*. '#' means a backspace character.
+
+Note that after backspacing an empty text, the text will continue empty.
+
+**Example 1:**
+
+**Input:** s = "ab#c", t = "ad#c"
+
+**Output:** true
+
+**Explanation:**
+
+Both s and t become "ac".
+
+def processString(string):
+    processed = []
+    for char in string:
+        if char == '#':
+            if processed:
+                processed.pop()
+        else:
+            processed.append(char)
+    return "".join(processed)
+
+def backspaceCompare(s, t):
+    processedS = processString(s)
+    processedT = processString(t)
+    return processedS == processedT
+
+# Test the function
+s = "ab#c"
+t = "ad#c"
+print(backspaceCompare(s, t))
+
+Q8. You are given an array coordinates, coordinates[i] = [x, y], where [x, y] represents the coordinate of a point. Check if these points make a straight line in the XY plane.
+
+Answr :- 
+def checkStraightLine(coordinates):
+    if len(coordinates) <= 2:
+        return True
+
+    x1, y1 = coordinates[0]
+    x2, y2 = coordinates[1]
+    initial_slope = float('inf') if (x2 - x1) == 0 else (y2 - y1) / (x2 - x1)
+
+    for i in range(2, len(coordinates)):
+        x1, y1 = x2, y2
+        x2, y2 = coordinates[i]
+        current_slope = float('inf') if (x2 - x1) == 0 else (y2 - y1) / (x2 - x1)
+
+        if current_slope != initial_slope:
+            return False
+
+    return True
+
+# Test the function
+coordinates = [[1,1],[2,2],[3,4],[4,5],[5,6],[7,7]]
+print(checkStraightLine(coordinates))
+
+
+
+
