@@ -1,0 +1,272 @@
+Q1. Given a string s, find the first non-repeating character in it and return its index. If it does not exist, return -1.
+
+def first(s):
+    frequency = {}
+
+    for char in s:
+        if char in frequency:
+            frequency[char] += 1
+        else:
+            frequency[char] = 1
+    for i in range(len(s)):
+        if frequency[s[i]] == 1:
+            return i
+    return -1
+
+Given a **circular integer array** `nums` of length `n`, return *the maximum possible sum of a non-empty **subarray** of* `nums`.
+A **circular array** means the end of the array connects to the beginning of the array. Formally, the next element of `nums[i]` is `nums[(i + 1) % n]` and the previous element of `nums[i]` is `nums[(i - 1 + n) % n]`.
+A **subarray** may only include each element of the fixed buffer `nums` at most once. Formally, for a subarray `nums[i], nums[i + 1], ..., nums[j]`, there does not exist `i <= k1`, `k2 <= j` with `k1 % n == k2 % n`.
+
+def max(nums):
+    max_sum = nums[0]
+    current_max = nums[0]
+    min_sum = nums[0]
+    current_min = nums[0]
+    total_sum = nums[0]
+
+    for i in range(1, len(nums)):
+        current_max = max(nums[i], current_max + nums[i])
+        max_sum = max(max_sum, current_max)
+
+        current_min = min(nums[i], current_min + nums[i])
+        min_sum = min(min_sum, current_min)
+
+        total_sum += nums[i]
+
+    if max_sum > 0:
+        return max(max_sum, total_sum - min_sum)
+    else:
+        return max_sum
+
+Q3. The school cafeteria offers circular and square sandwiches at lunch break, referred to by numbers `0` and `1` respectively. All students stand in a queue. 
+Each student either prefers square or circular sandwiches.
+The number of sandwiches in the cafeteria is equal to the number of students. The sandwiches are placed in a **stack**. At each step:
+- If the student at the front of the queue **prefers** the sandwich on the top of the stack, they will **take it** and leave the queue.
+- Otherwise, they will **leave it** and go to the queue's end.
+This continues until none of the queue students want to take the top sandwich and are thus unable to eat.
+You are given two integer arrays `students` and `sandwiches` where `sandwiches[i]` is the type of the `ith` sandwich in the stack (`i = 0` is the top of the stack) and `students[j]`
+is the preference of the `jth` student in the initial queue (`j = 0` is the front of the queue).
+Return *the number of students that are unable to eat.*
+
+from collections import deque
+
+def count(students, sandwiches):
+    queue = deque(students)
+    stack = sandwiches
+    unableToEat = 0
+    n = len(queue)
+
+    while queue:
+        if queue[0] == stack[0]:
+            queue.popleft()
+            stack.pop(0)
+            unableToEat = 0
+        else:
+            queue.append(queue.popleft())
+            unableToEat += 1
+
+        if unableToEat == n:  # All students have been moved to the end
+            break
+
+    return len(queue)
+
+Q4. You have a `RecentCounter` class which counts the number of recent requests within a certain time frame.
+Implement the `RecentCounter` class:
+- `RecentCounter()` Initializes the counter with zero recent requests.
+- `int ping(int t)` Adds a new request at time `t`, where `t` represents some time in milliseconds, and returns the number of requests that has happened in the past `3000` milliseconds (including the new request).
+Specifically, return the number of requests that have happened in the inclusive range `[t - 3000, t]`.
+It is **guaranteed** that every call to `ping` uses a strictly larger value of `t` than the previous call.
+
+from collections import deque
+
+class RecentCounter:
+    def __init__(self):
+        self.requests = deque()
+
+    def ping(self, t: int) -> int:
+        self.requests.append(t)
+
+        # Remove requests that fall outside the time frame
+        while self.requests[0] < t - 3000:
+            self.requests.popleft()
+
+        return len(self.requests)
+
+Q5. There are `n` friends that are playing a game. The friends are sitting in a circle and are numbered from `1` to `n` in **clockwise order**. More formally, 
+moving clockwise from the `ith` friend brings you to the `(i+1)th` friend for `1 <= i < n`, and moving clockwise from the `nth` friend brings you to the `1st` friend.
+The rules of the game are as follows:
+
+1. **Start** at the `1st` friend.
+2. Count the next `k` friends in the clockwise direction **including** the friend you started at. The counting wraps around the circle and may count some friends more than once.
+3. The last friend you counted leaves the circle and loses the game.
+4. If there is still more than one friend in the circle, go back to step `2` **starting** from the friend **immediately clockwise** of the friend who just lost and repeat.
+5. Else, the last friend in the circle wins the game.
+
+Given the number of friends, `n`, and an integer `k`, return *the winner of the game*.
+
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+def win(n: int, k: int) -> int:
+    # Create the circular linked list
+    head = ListNode(1)
+    curr = head
+    for i in range(2, n + 1):
+        curr.next = ListNode(i)
+        curr = curr.next
+    curr.next = head  # Make it circular
+
+    # Simulate the game
+    while curr != curr.next:
+        # Count k friends
+        for _ in range(k - 1):
+            curr = curr.next
+        # Remove the friend
+        curr.next = curr.next.next
+
+    return curr.val
+
+You are given an integer array `deck`. There is a deck of cards where every card has a unique integer. The integer on the `ith` card is `deck[i]`.
+
+You can order the deck in any order you want. Initially, all the cards start face down (unrevealed) in one deck.
+
+You will do the following steps repeatedly until all cards are revealed:
+
+1. Take the top card of the deck, reveal it, and take it out of the deck.
+2. If there are still cards in the deck then put the next top card of the deck at the bottom of the deck.
+3. If there are still unrevealed cards, go back to step 1. Otherwise, stop.
+
+Return *an ordering of the deck that would reveal the cards in increasing order*.
+
+**Note** that the first entry in the answer is considered to be the top of the deck.
+
+from collections import deque
+import heapq
+
+def incr(deck):
+    deck.sort()  # Sort the deck in ascending order
+    queue = deque(range(len(deck)))  # Initialize the queue with indices
+
+    result = [0] * len(deck)
+    for card in deck:
+        result[queue.popleft()] = card  # Reveal the card
+        if queue:  # If there are still unrevealed cards
+            queue.append(queue.popleft())  # Move the next card to the bottom
+
+    return result
+
+<aside>
+💡 **Question 7**
+
+Design a queue that supports `push` and `pop` operations in the front, middle, and back.
+
+Implement the `FrontMiddleBack` class:
+
+- `FrontMiddleBack()` Initializes the queue.
+- `void pushFront(int val)` Adds `val` to the **front** of the queue.
+- `void pushMiddle(int val)` Adds `val` to the **middle** of the queue.
+- `void pushBack(int val)` Adds `val` to the **back** of the queue.
+- `int popFront()` Removes the **front** element of the queue and returns it. If the queue is empty, return `1`.
+- `int popMiddle()` Removes the **middle** element of the queue and returns it. If the queue is empty, return `1`.
+- `int popBack()` Removes the **back** element of the queue and returns it. If the queue is empty, return `1`.
+
+**Notice** that when there are **two** middle position choices, the operation is performed on the **frontmost** middle position choice. For example:
+
+- Pushing `6` into the middle of `[1, 2, 3, 4, 5]` results in `[1, 2, 6, 3, 4, 5]`.
+- Popping the middle from `[1, 2, 3, 4, 5, 6]` returns `3` and results in `[1, 2, 4, 5, 6]`.
+
+from collections import deque
+
+class FrontMiddleBack:
+    def __init__(self):
+        self.front = deque()
+        self.back = deque()
+
+    def pushFront(self, val):
+        self.front.appendleft(val)
+        self._balance()
+
+    def pushMiddle(self, val):
+        if len(self.front) > len(self.back):
+            self.back.appendleft(self.front.pop())
+        self.front.append(val)
+        self._balance()
+
+    def pushBack(self, val):
+        self.back.append(val)
+        self._balance()
+
+    def popFront(self):
+        if self.front:
+            return self.front.popleft()
+        elif self.back:
+            return self.back.popleft()
+        else:
+            return -1
+
+    def popMiddle(self):
+        if self.front:
+            return self.front.pop()
+        elif self.back:
+            return self.back.popleft()
+        else:
+            return -1
+
+    def popBack(self):
+        if self.back:
+            if len(self.back) > len(self.front):
+                self.front.append(self.back.popleft())
+            return self.back.pop()
+        elif self.front:
+            return self.front.pop()
+        else:
+            return -1
+
+    def _balance(self):
+        if len(self.front) > len(self.back) + 1:
+            self.back.appendleft(self.front.pop())
+        elif len(self.front) < len(self.back):
+            self.front.append(self.back.popleft())
+
+For a stream of integers, implement a data structure that checks if the last `k` integers parsed in the stream are **equal** to `value`.
+
+Implement the **DataStream** class:
+
+- `DataStream(int value, int k)` Initializes the object with an empty integer stream and the two integers `value` and `k`.
+- `boolean consec(int num)` Adds `num` to the stream of integers. Returns `true` if the last `k` integers are equal to `value`, 
+and `false` otherwise. If there are less than `k` integers, the condition does not hold true, so returns `false`.
+
+class DataStream:
+    def __init__(self, value, k):
+        self.stream = [None] * k
+        self.value = value
+        self.k = k
+        self.count = 0
+        self.front = 0
+
+    def con(self, num):
+        self.stream[self.front] = num
+        self.front = (self.front + 1) % self.k
+        self.count = min(self.count + 1, self.k)
+        
+        if self.count < self.k:
+            return False
+        
+        for i in range(self.k):
+            if self.stream[i] != self.value:
+                return False
+        
+        return True
+
+
+
+
+
+
+
+
+
+
+
